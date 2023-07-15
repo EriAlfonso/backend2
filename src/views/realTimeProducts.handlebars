@@ -1,0 +1,121 @@
+<h2>Products Updated in Realtime</h2>
+
+<form id="realTimeForm">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" class="form-control" name="title" id="title" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <input type="text" class="form-control" name="description" id="description" required>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="price" class="form-label">Price:</label>
+            <input type="number" class="form-control" name="price" id="price" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="thumbnail" class="form-label">Thumbnail:</label>
+            <input type="text" class="form-control" name="thumbnail" id="thumbnail" required>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="category" class="form-label">Category:</label>
+            <input type="text" class="form-control" name="category" id="category" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="stock" class="form-label">Stock:</label>
+            <input type="number" class="form-control" name="stock" id="stock" required>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="code" class="form-label">Code:</label>
+            <input type="text" class="form-control" name="code" id="code" required>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-outline-success">Add Product</button>
+</form>
+
+
+
+<table id="realTimeProductsTable" class="table">
+    <thead>
+        <tr>
+            <td></td>
+            <td><strong>Product</strong></td>
+            <td><strong>Description</strong></td>
+            <td><strong>Price</strong></td>
+            <td><strong>Code</strong></td>
+            <td><strong>Stock</strong></td>
+            <td><strong>Category</strong></td>
+        </tr>
+    </thead>
+    <tbody id="realTimeTable">
+        {{#each products}}
+        <tr>
+            <td><img src="{{this.thumbnail}}" style="width: 5rem;" alt="no image"></td>
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.price}}</td>
+            <td>{{this.code}}</td>
+            <td>{{this.stock}}</td>
+            <td>{{this.category}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+
+
+{{!-- server coneccion con io --}}
+<script src="socket.io/socket.io.js"></script>
+<script>
+
+    const socket = io()
+
+    document.getElementById('realTimeForm').onsubmit = e => {
+        e.preventDefault()
+
+        const title = document.querySelector('input[name=title]').value
+        const description = document.querySelector('input[name=description]').value
+        const price = document.querySelector('input[name=price]').value
+        const thumbnail = document.querySelector('input[name=thumbnail]').value
+        const code = document.querySelector('input[name=code]').value
+        const stock = document.querySelector('input[name=stock]').value
+        const category = document.querySelector('input[name=category]').value
+
+        const newProduct = { title, description, price, thumbnail, code, stock, category }
+        socket.emit('newProduct', newProduct)
+    }
+
+    socket.on('realtimetable', products => {
+        const newTable = document.getElementById('realTimeTable')
+
+        let html = '';
+        products.forEach(product => {
+            html += `<tr>
+                 <td><img src="${product.thumbnail}" style="width: 5rem;" alt="no image"></td>
+        <td>${product.title}</td>
+    <td>${product.description}</td>
+    <td>${product.price}</td>
+    <td>${product.code}</td>
+    <td>${product.stock}</td>
+    <td>${product.category}</td>
+    </tr>
+                `
+        })
+        realTimeTable.innerHTML = html
+    }
+    )
+</script>
