@@ -1,54 +1,99 @@
 import fs from "fs";
+import productManager from "./productManager.js";
+
+const productManagerImport = new productManager("./product.json");
 
 // creamos la clase carttManager y la exportamos
 export default class cartManager {
-    constructor(path) {
-        this.path = path;
-        this.format = "utf-8";
+  constructor(path) {
+    this.path = path;
+    this.format = "utf-8";
+  }
+  // obtenemos los carts del json
+  getCarts = async () => {
+    try {
+      const content = await fs.promises.readFile(this.path, this.format);
+      return JSON.parse(content);
+    } catch (error) {
+      console.error("Error: No Carts Found", error);
+      return [];
     }
-// obtenemos los carts del json
-    getCarts = async () => {
-      try {
-        const content = await fs.promises.readFile(this.path, this.format);
-        return JSON.parse(content);
-      } catch (error) {
-        console.error("Error: No Carts Found", error);
-        return [];
+  };
+  // funcion para crear id automaticamente
+  getNewId = async () => {
+    const cartslist = await this.getCarts();
+    let count = 0;
+    cartslist.forEach((cart) => {
+      if (cart.id > count) {
+        count = cart.id;
       }
-    };
-// funcion para crear id automaticamente 
-    getNewId = async () => {
-        const cartslist = await this.getCarts();
-        let count = 0;
-        cartslist.forEach((cart) => {
-          if (cart.id > count) {
-            count = cart.id;
-          }
-        });
-        const newCount = ++count;
-        return newCount;
-      };
-    // crea un cart 
-      createCart = async () => {
-        try {
-          const newId = await this.getNewId();
-          const cart = { id: newId, products: [] };
-          const carts = await this.getCarts();
-          carts.push(cart);
-          await fs.promises.writeFile(this.path, JSON.stringify(carts), this.format);
-          console.log(`Cart with ID: ${newId} has been created.`);
-        } catch (error) {
-          console.error("Error creating cart:", error);
-        }
-      };
-      // funcion para modificar un cart
-      updateCart = async (cartId, updatedCarts) => {
-        try {
-          await fs.promises.writeFile(this.path, JSON.stringify(updatedCarts), this.format);
-          console.log(`Cart with ID: ${cartId} has been updated.`);
-        } catch (error) {
-          console.error('Error updating cart:', error);
-        }
-      };
-    
+    });
+    const newCount = ++count;
+    return newCount;
+  };
+  // crea un cart
+  createCart = async () => {
+    try {
+      const newId = await this.getNewId();
+      const cart = { id: newId, products: [] };
+      const carts = await this.getCarts();
+      carts.push(cart);
+      await fs.promises.writeFile(
+        this.path,
+        JSON.stringify(carts),
+        this.format
+      );
+      return { success: true, message: `Cart with ID: ${newId} has been created.` };
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: "Error creating cart" };
     }
+  };
+  // funcion para modificar un cart
+  updateCart = async (cartId, updatedCarts) => {
+    try {
+      await fs.promises.writeFile(
+        this.path,
+        JSON.stringify(updatedCarts),
+        this.format
+      );
+      return { success: true, message: `Cart with ID: ${cartId} has been updated.` };
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: "Error updating cart" };
+    }
+  };
+// funcion para agregar items al carrito
+addProductCart = async (cartId, productId, quantity = 1) => {
+  try {
+    const carts = await this.getCarts();
+    const cartIndex = carts.findIndex((cart) => cart.id === cartId);
+
+    if (cartIndex !== -1) {
+      const cart = carts[cartIndex];
+      const product = await productManagerImport.getProductById(productId);
+      if (!product) {
+        return { success: false, message: "Product Not Found" };
+      }
+      const productIndex = cart.products.findIndex(
+        (product) => product.id === productId
+      );
+
+      if (productIndex !== -1) {
+        cart.products[productIndex].quantity += quantity;
+      } else {
+        cart.products.push({ id: productId, quantity });
+      }
+      await this.updateCart(cartId, carts);
+      return { success: true, message: "Product added to cart successfully" };
+    } else {
+      return { success: false, message: "Cart Not Found" };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Internal Server Error" };
+  }
+}
+
+}
+

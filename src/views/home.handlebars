@@ -3,27 +3,27 @@
 
 <table id="productsContentTable" class="table">
     <thead>
-    <tr>
-        <td></td>
-        <td><strong>Product</strong></td>
-        <td><strong>Description</strong></td>
-        <td><strong>Price</strong></td>
-        <td><strong>Code</strong></td>
-        <td><strong>Stock</strong></td>
-        <td><strong>Category</strong></td>
-    </tr>
+        <tr>
+            <td></td>
+            <td><strong>Product</strong></td>
+            <td><strong>Description</strong></td>
+            <td><strong>Price</strong></td>
+            <td><strong>Code</strong></td>
+            <td><strong>Stock</strong></td>
+            <td><strong>Category</strong></td>
+        </tr>
     </thead>
     <tbody>
-    {{#each products}}
-    <tr>
+        {{#each products}}
+        <tr>
             <td><img src="{{this.thumbnail}}" style="width: 5rem;" alt="no image"></td>
-    <td>{{this.title}}</td>
-    <td>{{this.description}}</td>
-    <td>{{this.price}}</td>
-    <td>{{this.code}}</td>
-    <td>{{this.stock}}</td>
-    <td>{{this.category}}</td>
-    </tr>
-    {{/each}}  
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.price}}</td>
+            <td>{{this.code}}</td>
+            <td>{{this.stock}}</td>
+            <td>{{this.category}}</td>
+        </tr>
+        {{/each}}
     </tbody>
 </table>
