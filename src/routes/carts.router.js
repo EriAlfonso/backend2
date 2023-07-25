@@ -48,7 +48,7 @@ router.post("/:cid/product/:pid", async (req, res) => {
   try {
     const result = await cartManagerImport.addProductCart(cartId, productId, quantity);
 
-    if (result) {
+    if (result.success) {
       res.json({ message: "Product added successfully " });
     } else {
       res.status(404).send({ message: "Product not found" });

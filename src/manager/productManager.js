@@ -8,15 +8,21 @@ export default class productManager {
   }
 
   // muestra todos los productos en el array
-  getProducts = async () => {
-    try {
-      const content = await fs.promises.readFile(this.path, this.format);
-      return JSON.parse(content.toString());
-    } catch (error) {
-      console.log("Error: Product List Empty:", error);
-      return [];
+  getProducts = async (limit) => {
+    const content = await fs.promises.readFile(this.path, this.format);
+    const products=JSON.parse(content.toString());
+    if (products.length === 0) {
+      return { success: false, message: "No products found" };
     }
-  };
+    if (limit !== undefined && limit <= 0) {
+      return { success: false, message: "Invalid number" };
+    }
+    if (limit && limit > 0) {
+      const productLimit= products.slice(0, limit);
+      return { success: true, products:productLimit }
+    }
+    return { success: true, products };
+};
 
   // funcion para crear el id o code
   getNewId = async () => {

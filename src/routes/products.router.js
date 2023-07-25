@@ -9,18 +9,18 @@ const productManagerImport = new productManager('../product.json');
 // PRODUCT
 
 // get con soporte para ?limit=
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const products = await productManagerImport.getProducts();
     const limit = parseInt(req.query.limit);
-    if (limit > 0) {
-      const limitProduct = products.slice(0, limit);
-      res.json(limitProduct);
+    const productresult = await productManagerImport.getProducts(limit);
+    if (productresult.success) {
+      res.json(productresult.products);
     } else {
-      res.json(products);
+      res.status(404).send("Product List Not Found")
     }
   } catch (error) {
-    res.json('Error Receiving Data');
+  console.error("Error:", error);
+  res.status(500).json({ error: "Error Receiving Data" });
   }
 });
 
@@ -29,7 +29,7 @@ router.get('/:pid', async (req, res) => {
   const productId = parseInt(req.params.pid);
   try {
     const product = await productManagerImport.getProductById(productId);
-    if (product) {
+    if (product.success) {
       res.json(product);
     } else {
       res.status(404).send('Product Not Found');
@@ -58,7 +58,7 @@ router.put('/:pid', async (req, res) => {
   try {
     const updatedProduct = await productManagerImport.updateProduct(id, title, description, price, thumbnail, category, stock, code);
     
-    if (updatedProduct) {
+    if (updatedProduct.success) {
       res.json({ message: `Product with Id: ${id} has been updated` });
     } else {
       res.status(404).json({ error: `Product with ID: ${id} not found` });
@@ -69,14 +69,19 @@ router.put('/:pid', async (req, res) => {
 });
 
 // Delete para borrar un producto usando id
-router.delete('/:pid', async (req, res) => {
+router.delete("/:pid", async (req, res) => {
   const id = parseInt(req.params.pid);
 
   try {
-    await productManagerImport.deleteProduct(id);
-    res.json({ message: `Product with Id: ${id} has been deleted` });
+    const productDelete = await productManagerImport.deleteProduct(id);
+
+    if (productDelete.success) {
+      return res.json({ message: `Product with Id: ${id} has been deleted` });
+    } else {
+      return res.status(404).json({ message: "Product not found" });
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

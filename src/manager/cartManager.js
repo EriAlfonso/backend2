@@ -10,13 +10,22 @@ export default class cartManager {
     this.format = "utf-8";
   }
   // obtenemos los carts del json
-  getCarts = async () => {
+  getCarts = async (cartId) => {
     try {
       const content = await fs.promises.readFile(this.path, this.format);
-      return JSON.parse(content);
+      const carts= JSON.parse(content);
+      // si esta el id devolvemos un cart
+      if (cartId) {
+        const cart = carts.find((cart) => cart.id === cartId);
+        if (cart) {
+          return { success: true, cart };;
+        } else {
+          return [];
+        }
+      }
     } catch (error) {
-      console.error("Error: No Carts Found", error);
-      return [];
+      console.error(error);
+      return { success: false, message: "Internal Server Error" };
     }
   };
   // funcion para crear id automaticamente
