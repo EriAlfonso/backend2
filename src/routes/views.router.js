@@ -12,12 +12,12 @@ router.get("/", (req, res) => {
 });
 
 router.get("/home", async (req, res) => {
-    const products = await productManagerImport.getProducts();
+    const products = await productManagerImport.productsFile();
     res.render("home", { products });
 });
 
 router.get("/realTimeProducts", async (req, res) => {
-    const products = await productManagerImport.getProducts();
+    const products = await productManagerImport.productsFile();
     res.render("realTimeProducts", { products });
 });
 
