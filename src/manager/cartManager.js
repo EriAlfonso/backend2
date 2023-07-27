@@ -9,11 +9,21 @@ export default class cartManager {
     this.path = path;
     this.format = "utf-8";
   }
+
+  cartsFile = async () => {
+    try {
+      const content = await fs.promises.readFile(this.path, this.format);
+      return JSON.parse(content);
+    } catch (error) {
+      console.error("Error reading carts:", error);
+      return [];
+    }
+  };
+
   // obtenemos los carts del json
   getCarts = async (cartId) => {
     try {
-      const content = await fs.promises.readFile(this.path, this.format);
-      const carts= JSON.parse(content);
+    const carts= await this.cartsFile(this.path, this.format) 
       // si esta el id devolvemos un cart
       if (cartId) {
         const cart = carts.find((cart) => cart.id === cartId);
@@ -30,7 +40,7 @@ export default class cartManager {
   };
   // funcion para crear id automaticamente
   getNewId = async () => {
-    const cartslist = await this.getCarts();
+    const cartslist = await this.cartsFile(this.path, this.format);
     let count = 0;
     cartslist.forEach((cart) => {
       if (cart.id > count) {
@@ -45,7 +55,7 @@ export default class cartManager {
     try {
       const newId = await this.getNewId();
       const cart = { id: newId, products: [] };
-      const carts = await this.getCarts();
+      const carts = await this.cartsFile(this.path, this.format);
       carts.push(cart);
       await fs.promises.writeFile(
         this.path,
@@ -75,7 +85,7 @@ export default class cartManager {
 // funcion para agregar items al carrito
 addProductCart = async (cartId, productId, quantity = 1) => {
   try {
-    const carts = await this.getCarts();
+    const carts = await this.cartsFile(this.path, this.format);
     const cartIndex = carts.findIndex((cart) => cart.id === cartId);
 
     if (cartIndex !== -1) {
