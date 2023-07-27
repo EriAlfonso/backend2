@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
       stock,
       code
     );
-    const products = await productManagerImport.getProducts();
+    const products = await productManagerImport.productsFile();
 
     io.emit("realtimetable", products);
   });
