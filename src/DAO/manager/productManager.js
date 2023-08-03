@@ -20,18 +20,18 @@ export default class productManager {
 
   // muestra todos los productos en el array
   getProducts = async (limit) => {
-    const products = await this.productsFile(this.path, this.format)
-      if (products.length === 0) {
-        return { success: false, message: "No products found" };
-      }
-      if (limit !== undefined && limit <= 0) {
-        return { success: false, message: "Invalid number" };
-      }
-      if (limit && limit > 0) {
-        const productLimit= products.slice(0, limit);
-        return { success: true, products:productLimit }
-      }
-      return { success: true, products };
+    const products = await this.productsFile(this.path, this.format);
+    if (products.length === 0) {
+      return { success: false, message: "No products found" };
+    }
+    if (limit !== undefined && limit <= 0) {
+      return { success: false, message: "Invalid number" };
+    }
+    if (limit && limit > 0) {
+      const productLimit = products.slice(0, limit);
+      return { success: true, products: productLimit };
+    }
+    return { success: true, products };
   };
 
   // funcion para crear el id o code
@@ -73,7 +73,10 @@ export default class productManager {
     // codigo para impedir la repeticion de la variable "code"
     const codeExists = productList.find((product) => product.code === code);
     if (codeExists) {
-      return { success: false, message: "roduct with code ${code} already exists." };
+      return {
+        success: false,
+        message: `product with code ${code} already exists.`,
+      };
     }
     // id creado automaticamente
     const id = await this.getNewId();
@@ -89,18 +92,22 @@ export default class productManager {
       stock,
     };
     productList.push(product);
-    await fs.promises.writeFile(
-      this.path,
-      JSON.stringify(productList),
-      this.format
-    );
-    return { success: true, message: "Product added successfully" }
+    try {
+      await fs.promises.writeFile(
+        this.path,
+        JSON.stringify(productList),
+        this.format
+      );
+      return { success: true, message: "Product added successfully" };
+    } catch (error) {
+      return { success: false, message: "Error saving the product" };
+    }
   };
 
   // buscador de producto por id
   getProductById = async (id) => {
     try {
-      const products = await this.productsFile(this.path, this.format)
+      const products = await this.productsFile(this.path, this.format);
       if (products.length === 0) {
         return { success: false, message: "No products found" };
       }
@@ -115,7 +122,6 @@ export default class productManager {
       return { success: false, message: "Internal Server Error" };
     }
   };
-  
 
   // actualiza el producto usando su id para buscarlo
   updateProduct = async (
@@ -129,7 +135,6 @@ export default class productManager {
     code
   ) => {
     const update = {
-      id,
       title,
       description,
       price: `$${price}`,
@@ -138,30 +143,37 @@ export default class productManager {
       stock,
       code,
     };
-    const productList = await this.productsFile(this.path, this.format)
-    const product = await this.getProductById(id);
 
-    if (product) {
-      // Update the product properties
-      const updatedProduct = { ...product, ...update };
-      const updatedProductList = productList.map((item) =>
-        item.id === id ? updatedProduct : item
-      );
+    try {
+      const productid = await this.getProductById(id);
+      if (productid.success) {
+        const product = productid.product;
+        const productList = await this.productsFile(this.path, this.format);
+        const productIndex = productList.findIndex((prod) => prod.id === id);
 
-      await fs.promises.writeFile(
-        this.path,
-        JSON.stringify(updatedProductList),
-        this.format
-      );
-      return { success: true, message: "Product updated successfully" };
-    } else {
-      return { success: false, message: "Product not Found" };
+        if (productIndex !== -1) {
+          const updatedProduct = { ...productList[productIndex], ...update };
+          productList[productIndex] = updatedProduct;
+
+          await fs.promises.writeFile(
+            this.path,
+            JSON.stringify(productList),
+            this.format
+          );
+          return { success: true, updatedProduct };
+        }
+      }
+      else {
+        return { success: false, message: "Product not found" };
+      }
+    } catch (error) {
+      return { success: false, message: "Error updating the product" };
     }
   };
 
   // funcion para borra producto por id
   deleteProduct = async (id) => {
-    let productlist = await await this.productsFile(this.path, this.format)
+    let productlist = await await this.productsFile(this.path, this.format);
     try {
       const index = productlist.findIndex((prod) => prod.id === id);
       if (index !== -1) {
@@ -181,4 +193,3 @@ export default class productManager {
     }
   };
 }
-

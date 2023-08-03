@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import productManager from '../manager/productManager.js';
+import productManager from '../../DAO/manager/productManager.js';
 
 const router = Router();
 
@@ -7,7 +7,6 @@ const router = Router();
 const productManagerImport = new productManager('../product.json');
 
 // PRODUCT
-
 // get con soporte para ?limit=
 router.get("/", async (req, res) => {
   try {
@@ -24,47 +23,70 @@ router.get("/", async (req, res) => {
   }
 });
 
+
 // get con product id devuelve producto especifico
-router.get('/:pid', async (req, res) => {
+router.get("/:pid", async (req, res) => {
   const productId = parseInt(req.params.pid);
   try {
     const product = await productManagerImport.getProductById(productId);
     if (product.success) {
       res.json(product);
     } else {
-      res.status(404).send('Product Not Found');
+      res.status(404).send("Product Not Found");
     }
   } catch (error) {
-    res.json('Error Receiving Data');
+    res.json("Error Receiving Data");
   }
 });
 
 // Post para agregar un producto
-router.post('/', async (req, res) => {
-  const { title, description, price,  thumbnail, category, stock, code } = req.body;
+router.post("/", async (req, res) => {
+  const { title, description, price, thumbnail, category, stock, code } =
+    req.body;
   try {
-    await productManagerImport.addProduct(title, description, price, thumbnail,category, stock, code);
-    res.status(201).json({ message: 'Product added successfully' });
+    const productCreated= await productManagerImport.addProduct(
+      title,
+      description,
+      price,
+      thumbnail,
+      category,
+      stock,
+      code
+    );
+    if (!productCreated.success) {
+      return res.status(400).json({ error: productCreated.message });
+    }
+    return res.status(201).json({ message: "Product added successfully" });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
 // Put para modificar un producto usando id
-router.put('/:pid', async (req, res) => {
+router.put("/:pid", async (req, res) => {
   const id = parseInt(req.params.pid);
-  const { title, description, price, thumbnail, category, stock, code } = req.body;
+  const { title, description, price, thumbnail, category, stock, code } =
+    req.body;
 
   try {
-    const updatedProduct = await productManagerImport.updateProduct(id, title, description, price, thumbnail, category, stock, code);
-    
+    const updatedProduct = await productManagerImport.updateProduct(
+      id,
+      title,
+      description,
+      price,
+      thumbnail,
+      category,
+      stock,
+      code
+    );
+
     if (updatedProduct.success) {
       res.json({ message: `Product with Id: ${id} has been updated` });
     } else {
       res.status(404).json({ error: `Product with ID: ${id} not found` });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

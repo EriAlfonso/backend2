@@ -19,16 +19,15 @@ export default class cartManager {
       return [];
     }
   };
-
   // obtenemos los carts del json
   getCarts = async (cartId) => {
     try {
-    const carts= await this.cartsFile(this.path, this.format) 
+      const carts = await this.cartsFile(this.path, this.format);
       // si esta el id devolvemos un cart
       if (cartId) {
         const cart = carts.find((cart) => cart.id === cartId);
         if (cart) {
-          return { success: true, cart };;
+          return { success: true, cart };
         } else {
           return [];
         }
@@ -62,7 +61,10 @@ export default class cartManager {
         JSON.stringify(carts),
         this.format
       );
-      return { success: true, message: `Cart with ID: ${newId} has been created.` };
+      return {
+        success: true,
+        message: `Cart with ID: ${newId} has been created.`,
+      };
     } catch (error) {
       console.error(error);
       return { success: false, message: "Error creating cart" };
@@ -76,43 +78,44 @@ export default class cartManager {
         JSON.stringify(updatedCarts),
         this.format
       );
-      return { success: true, message: `Cart with ID: ${cartId} has been updated.` };
+      return {
+        success: true,
+        message: `Cart with ID: ${cartId} has been updated.`,
+      };
     } catch (error) {
       console.error(error);
       return { success: false, message: "Error updating cart" };
     }
   };
-// funcion para agregar items al carrito
-addProductCart = async (cartId, productId, quantity = 1) => {
-  try {
-    const carts = await this.cartsFile(this.path, this.format);
-    const cartIndex = carts.findIndex((cart) => cart.id === cartId);
+  // funcion para agregar items al carrito
+  addProductCart = async (cartId, productId, quantity = 1) => {
+    try {
+      const carts = await this.cartsFile(this.path, this.format);
+      const cartIndex = carts.findIndex((cart) => cart.id === cartId);
 
-    if (cartIndex !== -1) {
-      const cart = carts[cartIndex];
-      const product = await productManagerImport.getProductById(productId);
-      if (!product) {
-        return { success: false, message: "Product Not Found" };
-      }
-      const productIndex = cart.products.findIndex(
-        (product) => product.id === productId
-      );
+      if (cartIndex !== -1) {
+        const cart = carts[cartIndex];
+        const product = await productManagerImport.getProductById(productId);
+        if (!product) {
+          return { success: false, message: "Product Not Found" };
+        }
+        const productIndex = cart.products.findIndex(
+          (product) => product.id === productId
+        );
 
-      if (productIndex !== -1) {
-        cart.products[productIndex].quantity += quantity;
+        if (productIndex !== -1) {
+          cart.products[productIndex].quantity += quantity;
+        } else {
+          cart.products.push({ id: productId, quantity });
+        }
+        await this.updateCart(cartId, carts);
+        return { success: true, message: "Product added to cart successfully" };
       } else {
-        cart.products.push({ id: productId, quantity });
+        return { success: false, message: "Cart Not Found" };
       }
-      await this.updateCart(cartId, carts);
-      return { success: true, message: "Product added to cart successfully" };
-    } else {
-      return { success: false, message: "Cart Not Found" };
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: "Internal Server Error" };
     }
-  } catch (error) {
-    console.error(error);
-    return { success: false, message: "Internal Server Error" };
-  }
+  };
 }
-
-}
-

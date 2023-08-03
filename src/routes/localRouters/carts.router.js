@@ -1,5 +1,6 @@
 import { Router } from "express";
-import cartManager from "../manager/cartManager.js";
+import cartManager from "../../DAO/manager/cartManager.js";
+
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const cartManagerImport = new cartManager("../cart.json");
 router.post("/", async (req, res) => {
   try {
     // usamos el create cart para crear el carrito
-    await cartManagerImport.createCart();
+    await find();
     res.status(201).json({ message: "Cart created successfully" });
   } catch (error) {
     console.error(error);
@@ -24,14 +25,13 @@ router.get("/:cid", async (req, res) => {
 
   try {
     // usamos el get carts para traer el json con los carts
-    const carts = await cartManagerImport.getCarts();
-    // buscamos el cart con el id
-    const cart = carts.find((cart) => cart.id === cartId);
+    const results = await cartManagerImport.getCarts(cartId);
     // mostramos el cart
-    if (cart) {
-      res.json(cart);
+    if (results.success) {
+      res.json(results.cart);
+    }
       // un notfound por si no existe
-    } else {
+    else {
       res.status(404).send("Cart Not Found");
     }
   } catch (error) {

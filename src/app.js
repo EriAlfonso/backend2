@@ -1,18 +1,29 @@
 import express from "express";
-import cartRouter from "./routes/carts.router.js";
+import cartRouter from "./routes/mongoRouters/carts.router.js";
 import { Server } from "socket.io";
-import productRouter from "./routes/products.router.js";
+import productRouter from "./routes/mongoRouters/products.router.js";
 import viewsRouter from "./routes/views.router.js";
 import handlebars from "express-handlebars";
 import __dirname from "./utils.js";
-import productManager from "./manager/productManager.js";
+import productManager from "./DAO/mongoManagers/productManagerDB.js";
+import chatRouter from "./routes/mongoRouters/chat.router.js"
+import chatManager from "./DAO/mongoManagers/chatManagerDB.js";
+import mongoose from "mongoose";
+
 
 // import product manager
-const productManagerImport = new productManager("./product.json");
+const productManagerImport = new productManager();
+const chatManagerImport = new chatManager();
+
+const mongoURL = "mongodb+srv://thecheesegw2:rR4XFxtyluPWOvpt@ecommerce.e86wvix.mongodb.net/?retryWrites=true&w=majority"
+
 // import de express
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// set de static
+app.use(express.static("./src/public"));
 
 // set de handlebars
 app.engine(`handlebars`, handlebars.engine());
@@ -23,9 +34,21 @@ app.set("view engine", "handlebars");
 app.use("/", viewsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/products", productRouter);
+app.use("/api/chat", chatRouter)
 
 // port con mensaje para validar que funcione
 const httpServer = app.listen(8080, () => console.log("Server is Running.."));
+
+// conneccion a mongo 
+mongoose.connect(mongoURL, {
+  dbName: "ecommerce",
+})
+  .then(() => {
+    console.log("DB connected");
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 
 // server con io
 const io = new Server(httpServer);
@@ -43,10 +66,34 @@ io.on("connection", (socket) => {
       stock,
       code
     );
-    const products = await productManagerImport.productsFile();
+    const products = await productManagerImport.getProducts();
 
-    io.emit("realtimetable", products);
+    io.emit("realtimetable", products.products);
   });
 });
 
-// 16:56
+io.on("connection", (socket) => {
+  let username;
+
+
+  socket.on("setUsername", (name) => {
+    username = name;
+    io.emit("userJoined", username);
+  });
+
+  socket.on("saveMessage", async (data) => {
+    try {
+      const newMessage = await chatManagerImport.saveMessage(data.user, data.message);
+      io.emit("receiveMessage", newMessage);
+    } catch (error) {
+      console.error("Error saving chat message:", error);
+    }
+  });
+  socket.on("disconnect", () => {
+    if (username) {
+      io.emit("userLeft", username);
+    }
+  });
+});
+
+
