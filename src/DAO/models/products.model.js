@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2'
 
 const productCollection = 'products';
 
 const productSchema = new mongoose.Schema({
-    title: String,
+    title: {type:String,
+        index:true},
 
     description: String,
 
@@ -15,11 +17,14 @@ const productSchema = new mongoose.Schema({
 
     stock: Number,
 
-    category: String,
-
+    category: {type:String,
+        index:true},
+        
     status: Boolean,
 });
 
+productSchema.index({ category: "text" });
+productSchema.plugin(mongoosePaginate)
 mongoose.set('strictQuery', false)
 
 const productModel = mongoose.model(productCollection, productSchema)

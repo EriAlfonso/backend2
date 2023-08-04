@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import productManager from '../../DAO/mongoManagers/productManagerDB.js';
+import productModel from '../../DAO/models/products.model.js';
 
 const router = Router();
 
@@ -27,17 +28,32 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const { limit } = req.query;
+  const { limit = 10, page = 1, query, sort } = req.query;
+
+  const parsedLimit = parseInt(limit);
+  const parsedPage = parseInt(page);
+
   try {
-    const products = await productManagerImport.getProducts();
-    if (!limit || limit < 1) {
-      res.status(200).json(products);
-    } else {
-      const limitedProducts = products.slice(0, limit);
-      res.status(206).json(limitedProducts);
+    let queryOptions = {};
+    if (query) {
+      // queryOptions = { ...queryOptions, $text: { $search: query } };
+      // redo this part. there must be a better way
     }
-  } catch (err) {
-    res.status(400).json({ error400: "Server Error" });
+    const result = await productModel.paginate(queryOptions, {
+      sort: sort === "descending" ? { price: -1 } : sort === "ascending" ? { price: 1 } : {},
+      limit: parsedLimit,
+      page: parsedPage,
+    });
+
+    res.json({
+      products: result.docs,
+      currentPage: result.page,
+      totalPages: result.totalPages,
+      totalCount: result.totalDocs,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
