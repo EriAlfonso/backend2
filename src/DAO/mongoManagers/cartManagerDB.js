@@ -59,6 +59,29 @@ export default
     }
   };
 
+  removeProductFromCart = async (cartId, productId) => {
+    const cart = await this.getCartById(cartId);
+    const productIndex = cart.products.findIndex((product) => product._id.toString() === productId);
+
+    if (productIndex === -1) {
+      throw new Error("Product not found in cart");
+    }
+
+    cart.products.splice(productIndex, 1);
+    await this.updateCart(cartId, cart.products);
+  };
+
+  removeAllProductsFromCart = async (cartId) => {
+    try {
+      const cart = await this.getCartById(cartId);
+      cart.products = [];
+      await this.updateCart(cartId, cart.products);
+      return "All products removed from cart";
+    } catch (error) {
+      throw error;
+    }
+  };
+
   deleteCart = async (id) => {
     try {
       const cartDeleted = await cartModel.findByIdAndDelete(id);

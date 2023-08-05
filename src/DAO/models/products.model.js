@@ -21,7 +21,8 @@ const productSchema = new mongoose.Schema({
         index:true},
         
     status: Boolean,
-});
+}, { lean: true });
+
 
 productSchema.index({ category: "text" });
 productSchema.plugin(mongoosePaginate)

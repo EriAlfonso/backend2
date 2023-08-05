@@ -35,9 +35,15 @@ router.get("/", async (req, res) => {
 
   try {
     let queryOptions = {};
-    if (query) {
-      // queryOptions = { ...queryOptions, $text: { $search: query } };
-      // redo this part. there must be a better way
+    if (req.query.queryParams) {
+      const field = req.query.queryParams.split(",")[0];
+      let value = req.query.queryParams.split(",")[1];
+
+      if (!isNaN(parseInt(value))) {
+        value = parseInt(value);
+      }
+
+      queryOptions[field] = value;
     }
     const result = await productModel.paginate(queryOptions, {
       sort: sort === "descending" ? { price: -1 } : sort === "ascending" ? { price: 1 } : {},
@@ -45,12 +51,23 @@ router.get("/", async (req, res) => {
       page: parsedPage,
     });
 
-    res.json({
-      products: result.docs,
-      currentPage: result.page,
+    const response = {
+      status: "success",
+      payload: result.docs,
       totalPages: result.totalPages,
-      totalCount: result.totalDocs,
-    });
+      prevPage: result.prevPage,
+      nextPage: result.nextPage,
+      page: result.page,
+      hasPrevPage: result.hasPrevPage,
+      hasNextPage: result.hasNextPage,
+      prevLink: result.hasPrevPage
+        ? `/products?limit=${limit}&page=${result.prevPage}`
+        : null,
+      nextLink: result.hasNextPage
+        ? `/products?limit=${limit}&page=${result.nextPage}`
+        : null,
+    };
+    res.json(response);
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Internal Server Error" });

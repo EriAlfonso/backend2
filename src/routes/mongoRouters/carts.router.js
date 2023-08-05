@@ -58,6 +58,39 @@ router.get("/:cid", async (req, res) => {
       res.status(404).json({ error404: err.message });
     }
   }
+
+  router.delete("/:cid", async (req, res) => {
+    const { cid } = req.params;
+    try {
+      const result = await cartManagerImport.removeAllProductsFromCart(cid);
+      res.status(200).json({ message: result });
+    } catch (err) {
+      if (err.message.includes("Cart with id")) {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  });
+  
+  router.delete("/:cid/products/:pid", async (req, res) => {
+    const { cid, pid } = req.params;
+    try {
+      await cartManagerImport.removeProductFromCart(cid, pid);
+  
+      res.status(200).json({ message: "Product removed from cart" });
+    } catch (err) {
+      if (err.message.includes("Product not found in cart")) {
+        res.status(404).json({ error: err.message });
+      } else if (err.message.includes("Cart with id")) {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  });
 });
+
+
 
 export default router;
