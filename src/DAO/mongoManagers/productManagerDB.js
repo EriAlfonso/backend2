@@ -40,7 +40,7 @@ export default class productManager {
       return { success: false, message: "Internal Server Error" };
     }
   }
-  async getProductsQuery(options) {
+  getProductsQuery= async(options)=> {
     try {
       const { limit = 10, page = 1, query, sort } = options;
       const parsedLimit = parseInt(limit);
