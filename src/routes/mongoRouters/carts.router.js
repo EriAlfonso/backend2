@@ -7,6 +7,19 @@ const router = Router();
 const cartManagerImport = new cartManager();
 const productManagerImport = new productManager();
 
+router.get("/:cid", async (req, res) => {
+  const { cid } = req.params;
+
+  try {
+    
+    const cart = await cartManagerImport.getCartById(cid)
+    res.json(cart);
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const newCart = await cartManagerImport.createCart();
@@ -47,17 +60,6 @@ router.post("/:cid/product/:pid", async (req, res) => {
   }
 });
 
-router.get("/:cid", async (req, res) => {
-  let { cid } = req.params;
-
-  try {
-    const cart = await cartManagerImport.getCartById(cid);
-    res.status(200).json(cart);
-  } catch (err) {
-    if (err.message.includes("Cart with id")) {
-      res.status(404).json({ error404: err.message });
-    }
-  }
 
   router.delete("/:cid", async (req, res) => {
     const { cid } = req.params;
@@ -89,7 +91,7 @@ router.get("/:cid", async (req, res) => {
       }
     }
   });
-});
+
 
 
 

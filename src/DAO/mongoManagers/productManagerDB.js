@@ -40,6 +40,51 @@ export default class productManager {
       return { success: false, message: "Internal Server Error" };
     }
   }
+  async getProductsQuery(options) {
+    try {
+      const { limit = 10, page = 1, query, sort } = options;
+      const parsedLimit = parseInt(limit);
+      const parsedPage = parseInt(page);
+
+      let queryOptions = {};
+      if (query) {
+        const field = query.split(",")[0];
+        let value = query.split(",")[1];
+
+        if (!isNaN(parseInt(value))) {
+          value = parseInt(value);
+        }
+
+        queryOptions[field] = value;
+      }
+
+      const result = await productModel.paginate(queryOptions, {
+        sort: sort === "descending" ? { price: -1 } : sort === "ascending" ? { price: 1 } : {},
+        limit: parsedLimit,
+        page: parsedPage,
+        lean: true,
+      });
+
+      return {
+        status: "success",
+        payload: result.docs,
+        totalPages: result.totalPages,
+        prevPage: result.prevPage,
+        nextPage: result.nextPage,
+        page: result.page,
+        hasPrevPage: result.hasPrevPage,
+        hasNextPage: result.hasNextPage,
+        prevLink: result.hasPrevPage
+          ? `/products?limit=${limit}&page=${result.prevPage}`
+          : null,
+        nextLink: result.hasNextPage
+          ? `/products?limit=${limit}&page=${result.nextPage}`
+          : null,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 
   getProductById = async (id) => {
     try {

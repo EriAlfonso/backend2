@@ -27,47 +27,18 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
-  const { limit = 10, page = 1, query, sort } = req.query;
 
-  const parsedLimit = parseInt(limit);
-  const parsedPage = parseInt(page);
+router.get("/", async (req, res) => {
+  const options = {
+    limit: req.query.limit,
+    page: req.query.page,
+    query: req.query.queryParams,
+    sort: req.query.sort,
+  };
 
   try {
-    let queryOptions = {};
-    if (req.query.queryParams) {
-      const field = req.query.queryParams.split(",")[0];
-      let value = req.query.queryParams.split(",")[1];
-
-      if (!isNaN(parseInt(value))) {
-        value = parseInt(value);
-      }
-
-      queryOptions[field] = value;
-    }
-    const result = await productModel.paginate(queryOptions, {
-      sort: sort === "descending" ? { price: -1 } : sort === "ascending" ? { price: 1 } : {},
-      limit: parsedLimit,
-      page: parsedPage,
-    });
-
-    const response = {
-      status: "success",
-      payload: result.docs,
-      totalPages: result.totalPages,
-      prevPage: result.prevPage,
-      nextPage: result.nextPage,
-      page: result.page,
-      hasPrevPage: result.hasPrevPage,
-      hasNextPage: result.hasNextPage,
-      prevLink: result.hasPrevPage
-        ? `/products?limit=${limit}&page=${result.prevPage}`
-        : null,
-      nextLink: result.hasNextPage
-        ? `/products?limit=${limit}&page=${result.nextPage}`
-        : null,
-    };
-    res.json(response);
+    const result = await productManagerImport.getProductsQuery(options);
+    res.json(result);
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Internal Server Error" });

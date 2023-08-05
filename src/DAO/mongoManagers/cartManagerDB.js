@@ -29,10 +29,9 @@ export default
 
   getCartById = async (id) => {
     try {
-      const cart = await cartModel.findById(id);
+      const cart =await( await cartModel.findById(id)).populate("products._id")
 
       if (cart === null) {
-        console.error(`Cart with id: ${id} does not exist`);
         throw new Error(`Cart with id: ${id} does not exist`);
       }
 
