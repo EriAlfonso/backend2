@@ -11,7 +11,6 @@ const cartSchema = new mongoose.Schema({
       },
       quantity: Number
     }],
-    default: undefined 
   }
 });
 mongoose.set("strictQuery", false)

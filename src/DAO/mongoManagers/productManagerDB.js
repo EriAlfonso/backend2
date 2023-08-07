@@ -89,7 +89,7 @@ export default class productManager {
   getProductById = async (id) => {
     try {
       const product = await productModel.findById(id);
-
+      console.log('Product found:', product); 
       return product;
     } catch (error) {
       throw error;

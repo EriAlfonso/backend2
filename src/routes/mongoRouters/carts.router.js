@@ -1,6 +1,7 @@
 import { Router } from "express";
 import cartManager from "../../DAO/mongoManagers/cartManagerDB.js";
 import productManager from "../../DAO/mongoManagers/productManagerDB.js";
+import mongoose from "mongoose";
 
 const router = Router();
 
@@ -36,12 +37,13 @@ router.post("/:cid/product/:pid", async (req, res) => {
   try {
     const cart = await cartManagerImport.getCartById(cid);
     const product = await productManagerImport.getProductById(pid);
+    const productStringId = product._id.toString();
 
-    const productIndex = cart.products.findIndex((el) => el._id.toString() === pid);
+    const productIndex = cart.products.findIndex((el) => el._id.toString() === productStringId);
 
     if (productIndex === -1) {
       const newProduct = {
-        _id: product._id,
+        _id: productStringId,
         quantity: quantity,
       };
       cart.products.push(newProduct);
@@ -59,6 +61,7 @@ router.post("/:cid/product/:pid", async (req, res) => {
     }
   }
 });
+
 
 
   router.delete("/:cid", async (req, res) => {
