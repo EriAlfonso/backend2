@@ -13,7 +13,7 @@ router.get("/:cid", async (req, res) => {
 
   try {
     
-    const cart = await cartManagerImport.getCartById(cid)
+    const cart = await cartManagerImport.getCartByIdAndPopulate(cid)
     res.json(cart);
   } catch (error) {
     console.error("Error fetching cart:", error);
@@ -33,24 +33,19 @@ router.post("/", async (req, res) => {
 router.post("/:cid/product/:pid", async (req, res) => {
   const { cid, pid } = req.params;
   const quantity = req.body.quantity || 1;
-
   try {
     const cart = await cartManagerImport.getCartById(cid);
     const product = await productManagerImport.getProductById(pid);
-    const productStringId = product._id.toString();
-
-    const productIndex = cart.products.findIndex((el) => el._id.toString() === productStringId);
-
+    const productIndex = cart.products.findIndex((el) => el._id.toString() === pid);
     if (productIndex === -1) {
       const newProduct = {
-        _id: productStringId,
+        _id: product._id,
         quantity: quantity,
       };
       cart.products.push(newProduct);
     } else {
       cart.products[productIndex].quantity += quantity;
     }
-
     await cartManagerImport.updateCart(cid, cart.products);
     res.status(200).json("Product added or quantity updated");
   } catch (err) {
@@ -62,7 +57,32 @@ router.post("/:cid/product/:pid", async (req, res) => {
   }
 });
 
+router.put("/:cid/product/:pid", async (req, res) => {
+  const { cid, pid } = req.params;
+  const { quantity } = req.body;
 
+  if (!quantity ) {
+    return res.status(400).json({ error: "Quantity must be a valid number" });
+  }
+
+  try {
+    const cart = await cartManagerImport.getCartById(cid);
+    const productIndex = cart.products.findIndex((product) => product._id.toString() === pid);
+    if (productIndex === -1) {
+      res.status(404).json({ error: "Product not found in cart" });
+    } else {
+      cart.products[productIndex].quantity = quantity;
+      await cartManagerImport.updateCart(cid, cart.products);
+      res.status(200).json("Product quantity updated");
+    }
+  } catch (error) {
+    if (error.message.includes("Cart with id")) {
+      res.status(404).json({ error404: error.message });
+    } else {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+});
 
   router.delete("/:cid", async (req, res) => {
     const { cid } = req.params;

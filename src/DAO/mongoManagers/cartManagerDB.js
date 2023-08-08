@@ -29,6 +29,20 @@ export default
 
   getCartById = async (id) => {
     try {
+      const cart =await( await cartModel.findById(id))
+
+      if (cart === null) {
+        throw new Error(`Cart with id: ${id} does not exist`);
+      }
+
+      return cart;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  getCartByIdAndPopulate = async (id) => {
+    try {
       const cart =await( await cartModel.findById(id)).populate("products._id")
 
       if (cart === null) {
@@ -40,6 +54,7 @@ export default
       throw err;
     }
   };
+
 
   updateCart = async (id, arrayProducts) => {
     try {
