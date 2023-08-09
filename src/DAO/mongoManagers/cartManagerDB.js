@@ -1,8 +1,6 @@
 import cartModel from "../models/carts.model.js";
 
-export default
-  class CartManager {
-
+export default class CartManager {
   createCart = async () => {
     try {
       const cart = {
@@ -29,7 +27,7 @@ export default
 
   getCartById = async (id) => {
     try {
-      const cart =await( await cartModel.findById(id))
+      const cart = await await cartModel.findById(id);
 
       if (cart === null) {
         throw new Error(`Cart with id: ${id} does not exist`);
@@ -43,7 +41,9 @@ export default
 
   getCartByIdAndPopulate = async (id) => {
     try {
-      const cart =await( await cartModel.findById(id)).populate("products._id")
+      const cart = await (
+        await cartModel.findById(id)
+      ).populate("products._id");
 
       if (cart === null) {
         throw new Error(`Cart with id: ${id} does not exist`);
@@ -54,7 +54,6 @@ export default
       throw err;
     }
   };
-
 
   updateCart = async (id, arrayProducts) => {
     try {
@@ -73,9 +72,25 @@ export default
     }
   };
 
+  updateCartArray = async (cid) => {
+    try {
+      let cart = await cartModel.findById(cid);
+      if (cart) {
+        await cartModel.updateOne({ _id: cid }, { $set: { products: [] } });
+        return { message: "Cart update success" };
+      } else {
+        return { message: "Cart not found" };
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
+
   removeProductFromCart = async (cartId, productId) => {
     const cart = await this.getCartById(cartId);
-    const productIndex = cart.products.findIndex((product) => product._id.toString() === productId);
+    const productIndex = cart.products.findIndex(
+      (product) => product._id.toString() === productId
+    );
 
     if (productIndex === -1) {
       throw new Error("Product not found in cart");

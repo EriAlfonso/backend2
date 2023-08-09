@@ -57,6 +57,19 @@ router.post("/:cid/product/:pid", async (req, res) => {
   }
 });
 
+
+router.put("/:cid", async (req, res) => {
+  const { cid } = req.params;
+
+  try {
+    const result = await cartManagerImport.updateCartArray(cid);
+    res.status(200).json({ message: result });
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 router.put("/:cid/product/:pid", async (req, res) => {
   const { cid, pid } = req.params;
   const { quantity } = req.body;

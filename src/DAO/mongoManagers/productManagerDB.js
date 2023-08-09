@@ -59,7 +59,7 @@ export default class productManager {
       }
 
       const result = await productModel.paginate(queryOptions, {
-        sort: sort === "descending" ? { price: -1 } : sort === "ascending" ? { price: 1 } : {},
+        sort: sort === "desc" ? { price: -1 } : sort === "asc" ? { price: 1 } : {},
         limit: parsedLimit,
         page: parsedPage,
         lean: true,

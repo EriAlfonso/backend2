@@ -69,4 +69,8 @@ router.post("/chat", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+router.get("/cart", (req, res) => {
+    res.render("carts", {});
+});
 export default router;
