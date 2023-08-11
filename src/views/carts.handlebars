@@ -1,0 +1,23 @@
+
+<table id="cartContentTable" class="table">
+    <thead>
+        <tr>
+            <td></td>
+            <td><strong>Product</strong></td>
+            <td><strong>Price</strong></td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each cart.products}}
+        <tr>
+            <td><img src="{{this.thumbnail}}" style="width: 5rem;" alt="no image"></td>
+            <td>{{this.title}}</td>
+            <td>{{this.price}}</td>
+            <td>
+                <button class="btn btn-danger delete-btn" id="deleteBtn_{{this._id}}">Delete</button>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

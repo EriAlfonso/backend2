@@ -1,6 +1,8 @@
 import { Router } from "express";
 import productManager from "../DAO/mongoManagers/productManagerDB.js";
 import chatManager from "../DAO/mongoManagers/chatManagerDB.js";
+import cartManager from "../DAO/mongoManagers/cartManagerDB.js";
+import cartModel from "../DAO/models/carts.model.js";
 
 
 
@@ -9,6 +11,7 @@ const router = Router();
 // import de product manager para incorporar productos
 const productManagerImport = new productManager();
 const chatManagerImport = new chatManager();
+const cartManagerImport = new cartManager();
 
 // routers para los views
 router.get("/", (req, res) => {
@@ -35,7 +38,6 @@ router.get("/products", async (req, res) => {
     
       try {
         const result = await productManagerImport.getProductsQuery(options);
-        console.log(result)
         res.render("products", { products: result.payload,
             totalPages: result.totalPages,
             currentPage: result.page,
@@ -46,6 +48,18 @@ router.get("/products", async (req, res) => {
       }
     });
 
+    router.get("/products/:pid", async (req, res) => {
+        let { pid } = req.params;
+        try {
+          const product = await productManagerImport.getProductById(pid);
+          console.log("Product data:", product);
+          res.render("productDetails",{product});
+        } catch (err) {
+          if (err.message.includes("Product with id")) {
+            res.status(404).json({ error404: err.message });
+          }
+        }
+      });
 
 router.get("/realTimeProducts", async (req, res) => {
     const products = await productManagerImport.getProducts();
@@ -92,7 +106,18 @@ router.post("/chat", async (req, res) => {
     }
 });
 
-router.get("/cart", (req, res) => {
-    res.render("carts", {});
-});
+router.get("/carts/:cid",async (req, res) => {
+    const { cid } = req.params;
+    const carts= await cartModel.find()
+    const cartID= carts? carts[0]._id: null
+    try {
+      const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
+      console.log(cartID)
+      console.log(cart)
+      res.render("carts", { cart, cartID }); 
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
 export default router;
