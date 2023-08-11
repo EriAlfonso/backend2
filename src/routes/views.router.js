@@ -24,7 +24,6 @@ router.get("/home", async (req, res) => {
         ...product,
         _id: product._id.toHexString(),
     }));
-
     res.render("home", { products: idString });
 });
 
@@ -58,8 +57,10 @@ router.get('/products', async (req, res) => {
         let { pid } = req.params;
         try {
           const product = await productManagerImport.getProductById(pid);
-          console.log("Product data:", product);
-          res.render("productDetails",{product});
+          res.render("productDetails",{title: product.title,
+          description: product.description,
+          price: product.price,
+          thumbnail: product.thumbnail,});
         } catch (err) {
           if (err.message.includes("Product with id")) {
             res.status(404).json({ error404: err.message });
