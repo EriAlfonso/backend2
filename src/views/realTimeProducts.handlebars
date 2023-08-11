@@ -43,10 +43,8 @@
             <input type="text" class="form-control" name="code" id="code" required>
         </div>
     </div>
-
     <button type="submit" class="btn btn-outline-success">Add Product</button>
 </form>
-
 
 
 <table id="realTimeProductsTable" class="table">
@@ -68,7 +66,7 @@
             <td><img src="{{this.thumbnail}}" style="width: 5rem;" alt="no image"></td>
             <td>{{this.title}}</td>
             <td>{{this.description}}</td>
-            <td>{{this.price}}</td>
+            <td>${{this.price}}</td>
             <td>{{this.code}}</td>
             <td>{{this.stock}}</td>
             <td>{{this.category}}</td>
@@ -79,7 +77,6 @@
         {{/each}}
     </tbody>
 </table>
-
 
 
 {{!-- server coneccion con io --}}

@@ -25,6 +25,28 @@ router.get("/home", async (req, res) => {
     res.render("home", { products: idString });
 });
 
+router.get("/products", async (req, res) => {
+    const options = {
+        limit: req.query.limit,
+        page: req.query.page,
+        query: req.query.queryParams,
+        sort: req.query.sort,
+      };
+    
+      try {
+        const result = await productManagerImport.getProductsQuery(options);
+        console.log(result)
+        res.render("products", { products: result.payload,
+            totalPages: result.totalPages,
+            currentPage: result.page,
+        });
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+
 router.get("/realTimeProducts", async (req, res) => {
     const products = await productManagerImport.getProducts();
     const idString = products.products.map((product) => ({
