@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // set de static
 app.use(express.static("./src/public"));
 
+
 // set de handlebars
 app.engine(`handlebars`, handlebars.engine());
 app.set("views", __dirname + "/views");

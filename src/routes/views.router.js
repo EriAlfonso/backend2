@@ -28,25 +28,31 @@ router.get("/home", async (req, res) => {
     res.render("home", { products: idString });
 });
 
-router.get("/products", async (req, res) => {
-    const options = {
-        limit: req.query.limit,
-        page: req.query.page,
-        query: req.query.queryParams,
-        sort: req.query.sort,
-      };
-    
-      try {
-        const result = await productManagerImport.getProductsQuery(options);
-        res.render("products", { products: result.payload,
-            totalPages: result.totalPages,
-            currentPage: result.page,
-        });
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-      }
+router.get('/products', async (req, res) => {
+  const options = {
+    limit: req.query.limit,
+    page: parseInt(req.query.page) || 1,
+    query: req.query.queryParams,
+    sort: req.query.sort,
+  };
+
+  try {
+    const result = await productManagerImport.getProductsQuery(options);
+    res.render('products', {
+      products: result.payload,
+      totalPages: result.totalPages,
+      currentPage: result.page,
+      hasPrevPage: result.hasPrevPage,
+      hasNextPage: result.hasNextPage,
+      prevLink: result.prevLink,
+      nextLink: result.nextLink
     });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
     router.get("/products/:pid", async (req, res) => {
         let { pid } = req.params;
