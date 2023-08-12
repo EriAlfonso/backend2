@@ -1,14 +1,17 @@
 import express from "express";
-import cartRouter from "./routes/mongoRouters/carts.router.js";
+import session from "express-session";
+import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
+import __dirname from "./utils.js";
 import { Server } from "socket.io";
+import handlebars from "express-handlebars";
+import cartRouter from "./routes/mongoRouters/carts.router.js";
 import productRouter from "./routes/mongoRouters/products.router.js";
 import viewsRouter from "./routes/views.router.js";
-import handlebars from "express-handlebars";
-import __dirname from "./utils.js";
-import productManager from "./DAO/mongoManagers/productManagerDB.js";
 import chatRouter from "./routes/mongoRouters/chat.router.js"
+import sessionRouter from "./routes/mongoRouters/session.router.js"
+import productManager from "./DAO/mongoManagers/productManagerDB.js";
 import chatManager from "./DAO/mongoManagers/chatManagerDB.js";
-import mongoose from "mongoose";
 
 
 // import product manager
@@ -36,6 +39,7 @@ app.use("/", viewsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/products", productRouter);
 app.use("/api/chat", chatRouter)
+app.use("/api/session", sessionRouter)
 
 // port con mensaje para validar que funcione
 const httpServer = app.listen(8080, () => console.log("Server is Running.."));
@@ -51,6 +55,21 @@ mongoose.connect(mongoURL, {
     console.error(error);
   });
 
+app.use(session({
+  store: MongoStore.create({
+  mongoUrl: mongoURL,
+  dbName: "ecommerce",
+  mongoOptions: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  ttl: 100,
+}),
+secret: "secret",
+resave: true,
+saveUninitialized: true,
+})
+);
 // server con io
 const io = new Server(httpServer);
 
