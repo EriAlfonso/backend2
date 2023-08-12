@@ -1,5 +1,4 @@
 import express from "express";
-import session from "express-session";
 import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
 import __dirname from "./utils.js";
@@ -12,6 +11,7 @@ import chatRouter from "./routes/mongoRouters/chat.router.js"
 import sessionRouter from "./routes/mongoRouters/session.router.js"
 import productManager from "./DAO/mongoManagers/productManagerDB.js";
 import chatManager from "./DAO/mongoManagers/chatManagerDB.js";
+import session from "express-session";
 
 
 // import product manager
@@ -34,6 +34,21 @@ app.engine(`handlebars`, handlebars.engine());
 app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
 
+app.use(session({
+  store: MongoStore.create({
+  mongoUrl: mongoURL,
+  dbName: "ecommerce",
+  mongoOptions: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  ttl: 100,
+}),
+secret: "secret",
+resave: true,
+saveUninitialized: true,
+})
+);
 // import de routers
 app.use("/", viewsRouter);
 app.use("/api/carts", cartRouter);
@@ -55,21 +70,6 @@ mongoose.connect(mongoURL, {
     console.error(error);
   });
 
-app.use(session({
-  store: MongoStore.create({
-  mongoUrl: mongoURL,
-  dbName: "ecommerce",
-  mongoOptions: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  ttl: 100,
-}),
-secret: "secret",
-resave: true,
-saveUninitialized: true,
-})
-);
 // server con io
 const io = new Server(httpServer);
 
