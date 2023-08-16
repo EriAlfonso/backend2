@@ -52,6 +52,9 @@ router.get("/products", async (req, res) => {
 
 router.get("/products/:pid", async (req, res) => {
   let { pid } = req.params;
+  const carts = await cartModel.find();
+  const cartID = carts ? carts[0]._id : null;
+  console.log(cartID)
   try {
     const product = await productManagerImport.getProductById(pid);
     res.render("productDetails", {
@@ -59,6 +62,8 @@ router.get("/products/:pid", async (req, res) => {
       description: product.description,
       price: product.price,
       thumbnail: product.thumbnail,
+      id:product._id,
+      cartID
     });
   } catch (err) {
     if (err.message.includes("Product with id")) {
@@ -111,14 +116,12 @@ router.post("/chat", async (req, res) => {
   }
 });
 
-router.get("/carts/:cid", async (req, res) => {
+router.get("/carts", async (req, res) => {
   const { cid } = req.params;
   const carts = await cartModel.find();
   const cartID = carts ? carts[0]._id : null;
   try {
     const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
-    console.log(cartID);
-    console.log(cart);
     res.render("carts", { cart, cartID });
   } catch (error) {
     console.error("Error fetching cart:", error);

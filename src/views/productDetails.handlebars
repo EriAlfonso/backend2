@@ -1,6 +1,7 @@
 <h3>Details</h3>
 
-<div class="card mb-3" style="max-width: 25rem;">
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+<div class="card mb-3 " style="max-width: 55rem;">
     <div class="row g-0">
         <div class="col-md-4">
             <img src={{thumbnail}} class="img-fluid rounded-start" alt="image" />
@@ -10,7 +11,12 @@
                 <h5 class="card-title">{{title}}</h5>
                 <p class="card-text">{{description}}</p>
                 <p class="card-text">${{price}}</p>
+                <a class="btn btn-outline-success add-to-cart-button" data-pid="{{id}}" data-cartid="{{cartID}}" href="/products">Add to Cart</a>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/products.js"></script>
