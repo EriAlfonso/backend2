@@ -1,14 +1,16 @@
+const socket = io();
+
 document.addEventListener("DOMContentLoaded", () => {
     const addToCartButtons = document.querySelectorAll(".add-to-cart-button");
 
     addToCartButtons.forEach((button) => {
         button.addEventListener("click", async () => {
+            event.preventDefault();
             const productID = button.dataset.pid;
             const cartID = button.dataset.cartid;
             try {
                 const response = await fetch(
                     `/api/carts/${cartID}/product/${productID}`,
-                    // indicamos el metodo y el type
                     {
                         method: "POST",
                         headers: {
@@ -19,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
                 if (response.ok) {
-                    console.log("Product added successfully");
+                    window.location.href = "/products";
                 } else {
                     console.error("Failed to add product");
                 }

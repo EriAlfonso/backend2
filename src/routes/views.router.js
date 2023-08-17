@@ -54,7 +54,6 @@ router.get("/products/:pid", async (req, res) => {
   let { pid } = req.params;
   const carts = await cartModel.find();
   const cartID = carts ? carts[0]._id : null;
-  console.log(cartID)
   try {
     const product = await productManagerImport.getProductById(pid);
     res.render("productDetails", {
@@ -117,12 +116,12 @@ router.post("/chat", async (req, res) => {
 });
 
 router.get("/carts", async (req, res) => {
-  const { cid } = req.params;
   const carts = await cartModel.find();
   const cartID = carts ? carts[0]._id : null;
   try {
     const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
-    res.render("carts", { cart, cartID });
+    console.log(cart)
+    res.render("carts", { cart});
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).json({ error: "Internal Server Error" });
