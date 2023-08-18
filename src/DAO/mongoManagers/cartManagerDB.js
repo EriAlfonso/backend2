@@ -27,7 +27,7 @@ export default class CartManager {
 
   getCartById = async (id) => {
     try {
-      const cart = await await cartModel.findById(id);
+      const cart = await cartModel.findById(id);
 
       if (cart === null) {
         throw new Error(`Cart with id: ${id} does not exist`);
@@ -41,9 +41,9 @@ export default class CartManager {
 
   getCartByIdAndPopulate = async (id) => {
     try {
-      const cart = await (
+      const cart =
         await cartModel.findById(id)
-      ).populate("products._id");
+      .populate("products._id").lean().exec();
 
       if (cart === null) {
         throw new Error(`Cart with id: ${id} does not exist`);
