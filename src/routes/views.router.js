@@ -25,6 +25,7 @@ router.get("/home", async (req, res) => {
   res.render("home", { products: idString });
 });
 
+
 router.get("/products", async (req, res) => {
   const options = {
     limit: req.query.limit,
@@ -32,10 +33,11 @@ router.get("/products", async (req, res) => {
     query: req.query.queryParams,
     sort: req.query.sort,
   };
-
+  const user = req.session.user;
   try {
     const result = await productManagerImport.getProductsQuery(options);
     res.render("products", {
+      user,
       products: result.payload,
       totalPages: result.totalPages,
       currentPage: result.page,
@@ -121,7 +123,7 @@ router.get("/carts", async (req, res) => {
   try {
     const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
     console.log(cart)
-    res.render("carts", { cart});
+    res.render("carts", { products:cart.products});
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -131,9 +133,9 @@ router.get("/carts", async (req, res) => {
 
 router.get("/login", (req, res) => {
   if(req.session?.user) {
-    res.redirect('/profile')
+    res.redirect('/logout')
 }
-
+else
   res.render("login", {});
 });
 
@@ -146,6 +148,15 @@ router.get("/register", (req, res) => {
   res.render("register", {});
 });
 
+router.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+    }
+    res.redirect('/products');
+  });
+});
+
 
 function auth(req, res, next) {
   if(req.session?.user) return next()
@@ -156,6 +167,9 @@ router.get("/profile",auth, (req, res) => {
   const user = req.session.user
   res.render("profile", user);
 });
+
+
+
 
 
 export default router;

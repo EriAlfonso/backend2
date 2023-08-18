@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
   email: String,
   age: Number,
   password: String,
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 });
 
 mongoose.set('strictQuery', false)

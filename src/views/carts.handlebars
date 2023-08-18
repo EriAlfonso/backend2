@@ -10,11 +10,11 @@
     </thead>
     <tbody>
         {{#each products}}
-        <td><img src="{{product.thumbnail}}" style="width: 5rem;" alt="no image"></td>
-            <td>{{product.title}}</td>
-            <td>{{product.price}}</td>
+        <td><img src="{{this.thumbnail}}" style="width: 5rem;" alt="no image"></td>
+            <td>{{this.title}}</td>
+            <td>{{this.price}}</td>
             <td>
-                <button class="btn btn-danger delete-btn" id="deleteBtn_{{product._id}}">Delete</button>
+                <button class="btn btn-danger delete-btn" id="deleteBtn{{this._id}}">Delete</button>
             </td>
         {{/each}}
     </tbody>
