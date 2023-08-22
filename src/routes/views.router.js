@@ -122,8 +122,11 @@ router.get("/carts", async (req, res) => {
   const cartID = carts ? carts[0]._id : null;
   try {
     const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
-    console.log(cart)
-    res.render("carts", { products:cart.products});
+    cart.products.forEach(product => {
+      product.totalPrice = product.quantity * product._id.price; 
+    });
+    const cartTotalPrice = cart.products.reduce((total, product) => total + product.totalPrice, 0);
+    res.render("carts", { products:cart.products, cartTotalPrice});
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).json({ error: "Internal Server Error" });

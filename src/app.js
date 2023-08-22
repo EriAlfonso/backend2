@@ -10,12 +10,15 @@ import viewsRouter from "./routes/views.router.js";
 import chatRouter from "./routes/mongoRouters/chat.router.js"
 import sessionRouter from "./routes/mongoRouters/session.router.js"
 import productManager from "./DAO/mongoManagers/productManagerDB.js";
+import cartManager from "./DAO/mongoManagers/cartManagerDB.js";
+import cartModel from "./DAO/models/carts.model.js";
 import chatManager from "./DAO/mongoManagers/chatManagerDB.js";
 import session from "express-session";
 
 
 // import product manager
 const productManagerImport = new productManager();
+const cartManagerImport= new cartManager();
 const chatManagerImport = new chatManager();
 
 const mongoURL = "mongodb+srv://thecheesegw2:rR4XFxtyluPWOvpt@ecommerce.e86wvix.mongodb.net/?retryWrites=true&w=majority"
@@ -49,6 +52,27 @@ resave: true,
 saveUninitialized: true,
 })
 );
+
+// codigo para el badge 
+app.use(async (req, res, next) => {
+  if (req.session?.user) {
+    const carts = await cartModel.find();
+    const cartID = carts ? carts[0]._id : null;
+
+    try {
+      const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
+      const cartItemCount = cart.products.reduce((total, product) => total + product.quantity, 0);
+      res.locals.cartItemCount = cartItemCount;
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      res.locals.cartItemCount = 0; 
+    }
+  } else {
+    res.locals.cartItemCount = 0; 
+  }
+
+  next();
+});
 // import de routers
 app.use("/", viewsRouter);
 app.use("/api/carts", cartRouter);
