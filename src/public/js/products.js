@@ -1,5 +1,6 @@
 const socket = io();
 
+
 document.addEventListener("DOMContentLoaded", () => {
     const addToCartButtons = document.querySelectorAll(".add-to-cart-button");
 
@@ -30,4 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+});
+
+
+const sortSelect = document.getElementById("sort");
+const sortForm = document.getElementById("sortForm");
+
+sortSelect.addEventListener("change", () => {
+  sortForm.submit();
 });

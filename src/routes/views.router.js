@@ -63,6 +63,8 @@ router.get("/products/:pid", async (req, res) => {
       description: product.description,
       price: product.price,
       thumbnail: product.thumbnail,
+      stock: product.stock,
+      category:product.category,
       id:product._id,
       cartID
     });
@@ -124,9 +126,10 @@ router.get("/carts", async (req, res) => {
     const cart = await cartManagerImport.getCartByIdAndPopulate(cartID);
     cart.products.forEach(product => {
       product.totalPrice = product.quantity * product._id.price; 
+      product.cartId=cartID.toString()
     });
     const cartTotalPrice = cart.products.reduce((total, product) => total + product.totalPrice, 0);
-    res.render("carts", { products:cart.products, cartTotalPrice});
+    res.render("carts", { products:cart.products, cartTotalPrice,});
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).json({ error: "Internal Server Error" });

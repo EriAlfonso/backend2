@@ -1,5 +1,16 @@
 <h3>Product list</h3>
 <h4>Welcome {{user.role}} {{user.first_name}}!</h4>
+<div class="col-md-5 mb-3">
+<form action="/products" method="GET" id="sortForm">
+  <label for="sort" class="form-label">Sort By:</label>
+  <select class="form-select form-select-lg mb-3" aria-label="Small select example" name="sort" id="sort">
+    <option selected >-----</option>
+    <option value="asc">Lowest Price</option>
+    <option value="desc">Highest Price</option>
+  </select>
+</form>
+</div>
+
 <div style="display: flex;flex-wrap: wrap; justify-content: center;">
 {{#each products}}
 <div class="card" style="width: 18rem; margin: 1rem;" >
@@ -33,3 +44,7 @@
     {{/if}}
   </ul>
 </nav>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/products.js"></script>
