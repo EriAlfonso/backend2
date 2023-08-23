@@ -18,7 +18,7 @@ import session from "express-session";
 
 // import product manager
 const productManagerImport = new productManager();
-const cartManagerImport= new cartManager();
+const cartManagerImport = new cartManager();
 const chatManagerImport = new chatManager();
 
 const mongoURL = "mongodb+srv://thecheesegw2:rR4XFxtyluPWOvpt@ecommerce.e86wvix.mongodb.net/?retryWrites=true&w=majority"
@@ -39,17 +39,17 @@ app.set("view engine", "handlebars");
 
 app.use(session({
   store: MongoStore.create({
-  mongoUrl: mongoURL,
-  dbName: "ecommerce",
-  mongoOptions: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  ttl: 100,
-}),
-secret: "secret",
-resave: true,
-saveUninitialized: true,
+    mongoUrl: mongoURL,
+    dbName: "ecommerce",
+    mongoOptions: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+    ttl: 60 * 60 * 1000,
+  }),
+  secret: "secret",
+  resave: true,
+  saveUninitialized: true,
 })
 );
 
@@ -65,10 +65,10 @@ app.use(async (req, res, next) => {
       res.locals.cartItemCount = cartItemCount;
     } catch (error) {
       console.error("Error fetching cart:", error);
-      res.locals.cartItemCount = 0; 
+      res.locals.cartItemCount = 0;
     }
   } else {
-    res.locals.cartItemCount = 0; 
+    res.locals.cartItemCount = 0;
   }
 
   next();
