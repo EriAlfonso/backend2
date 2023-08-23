@@ -4,7 +4,6 @@ import productModel from '../../DAO/models/products.model.js';
 
 const router = Router();
 
-// import de product manager
 const productManagerImport = new productManager();
 
 router.post("/", async (req, res) => {

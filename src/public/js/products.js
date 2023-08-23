@@ -38,5 +38,5 @@ const sortSelect = document.getElementById("sort");
 const sortForm = document.getElementById("sortForm");
 
 sortSelect.addEventListener("change", () => {
-  sortForm.submit();
+    sortForm.submit();
 });

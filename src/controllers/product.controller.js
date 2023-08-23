@@ -36,6 +36,7 @@ export default class productController {
                 hasNextPage: result.hasNextPage,
                 prevLink: result.prevLink,
                 nextLink: result.nextLink,
+                sort:options.sort
             });
         } catch (error) {
             console.error("Error fetching products:", error);
